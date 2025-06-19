@@ -42,21 +42,43 @@ function evalFormula(input) {
         if (!input.startsWith('=')) return input;
         let formula = input.slice(1).trim();
 
-        // =sum(a,b,c)
+        // =sum(...)
         if (/^sum\s*\(/i.test(formula)) {
             let args = formula.match(/^sum\s*\((.*)\)$/i);
             if (!args) return "#ERR";
-            let values = args[1].split(',').map(x => safeEval(x.trim()));
-            return values.reduce((a, b) => a + b, 0);
+            let inside = args[1];
+
+            // Replace cell refs (A1, B2, etc.) inside the sum
+            inside = inside.replace(/\b([A-Z]+)(\d+)\b/g, (match, col, row) => {
+                let c = col.charCodeAt(0) - 65;
+                let r = parseInt(row) - 1;
+                if (c >= 0 && c < COLS && r >= 0 && r < ROWS) {
+                    let v = sheet[r][c];
+                    if (typeof v === "string" && v.trim().startsWith("=")) {
+                        return evalFormula(v);
+                    } else {
+                        return Number(v) || 0;
+                    }
+                }
+                return 0;
+            });
+
+            if (inside.includes(',')) {
+                let values = inside.split(',').map(x => safeEval(x.trim()));
+                return values.reduce((a, b) => a + b, 0);
+            } else {
+                // Evaluate the entire inside as a math expression
+                return safeEval(inside);
+            }
         } else {
-            // Replace cell refs (A1, B2, etc.)
+            // Replace cell refs for basic math
             formula = formula.replace(/\b([A-Z]+)(\d+)\b/g, (match, col, row) => {
                 let c = col.charCodeAt(0) - 65;
                 let r = parseInt(row) - 1;
                 if (c >= 0 && c < COLS && r >= 0 && r < ROWS) {
                     let v = sheet[r][c];
                     if (typeof v === "string" && v.trim().startsWith("=")) {
-                        return safeEval(v.slice(1));
+                        return evalFormula(v);
                     } else {
                         return Number(v) || 0;
                     }
