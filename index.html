@@ -8,9 +8,28 @@
 </head>
 <body>
     <div class="app-container">
-        <header class="app-header">
-            <span class="app-title">SheetGrid</span>
-        </header>
+        <nav class="menu-bar">
+            <div class="menu">
+                <button class="menu-btn" tabindex="0">File ▾</button>
+                <div class="dropdown">
+                    <button disabled>New</button>
+                    <button disabled>Open…</button>
+                    <button disabled>Save</button>
+                    <button disabled>Save As…</button>
+                    <button disabled>Export (JSON)</button>
+                </div>
+            </div>
+            <div class="menu">
+                <button class="menu-btn" tabindex="0">Edit ▾</button>
+                <div class="dropdown">
+                    <button disabled>Cut</button>
+                    <button disabled>Copy</button>
+                    <button disabled>Paste</button>
+                    <button disabled>Undo</button>
+                    <button disabled>Redo</button>
+                </div>
+            </div>
+        </nav>
 
         <div class="formula-bar-container">
             <label for="formula-bar" class="formula-label">fx</label>

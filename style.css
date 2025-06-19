@@ -4,41 +4,95 @@ html, body {
     padding: 0;
     background: #ececec;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    width: 100vw;
+    min-width: 100vw;
+    min-height: 100vh;
 }
 
 .app-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 800px;
-    margin: 24px auto;
-    border: 1.5px solid #b5b5b5;
+    width: 100vw;
+    min-width: 100vw;
+    min-height: 100vh;
     background: #f8f8f8;
-    border-radius: 8px;
-    box-shadow: 0 2px 14px #0002;
-    overflow: hidden;
 }
 
-.app-header {
+.menu-bar {
+    display: flex;
     background: #dde4ee;
     border-bottom: 1px solid #b5b5b5;
-    padding: 10px 16px;
-    font-weight: bold;
-    font-size: 1.15rem;
-    color: #293241;
+    padding: 0 0 0 8px;
+    height: 34px;
+    align-items: center;
+    font-size: 1rem;
+    z-index: 100;
+    user-select: none;
 }
 
-.app-title {
-    font-family: "Segoe UI", "Tahoma", Geneva, Verdana, sans-serif;
-    letter-spacing: 1px;
+.menu {
+    position: relative;
+    margin-right: 16px;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    padding: 6px 16px 6px 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+    color: #293241;
+    border-radius: 2px 2px 0 0;
+}
+.menu-btn:focus,
+.menu-btn:hover {
+    background: #e8eefb;
+    outline: 1px solid #a0a0a0;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 28px;
+    left: 0;
+    background: #fff;
+    border: 1px solid #b5b5b5;
+    box-shadow: 0 2px 12px #0002;
+    z-index: 200;
+    min-width: 120px;
+    flex-direction: column;
+}
+.menu.open .dropdown {
+    display: flex;
+}
+.dropdown button {
+    padding: 6px 18px 6px 18px;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    color: #222;
+    width: 100%;
+    border-radius: 0;
+}
+.dropdown button:hover:enabled {
+    background: #dbe9fa;
+}
+.dropdown button:disabled {
+    color: #aaa;
+    cursor: not-allowed;
 }
 
 .formula-bar-container {
     display: flex;
     align-items: center;
-    padding: 8px 16px;
+    padding: 8px 16px 8px 18px;
     border-bottom: 1px solid #ccd2da;
     background: #f2f4f8;
+    min-height: 36px;
 }
 
 .formula-label {
@@ -65,22 +119,25 @@ html, body {
 
 #grid-container {
     flex: 1;
+    min-height: 0;
     overflow: auto;
     background: #fff;
-    padding: 8px 0 0 8px;
+    padding: 10px 0 0 10px;
     font-family: monospace;
+    width: 100%;
 }
 
 .grid-table {
     border-collapse: collapse;
     width: 100%;
-    min-width: 600px;
+    min-width: 700px;
+    user-select: none;
 }
 
 .grid-table th, .grid-table td {
     border: 1px solid #b5b5b5;
-    min-width: 70px;
-    max-width: 220px;
+    min-width: 72px;
+    max-width: 260px;
     height: 28px;
     padding: 0 8px;
     font-size: 1rem;
@@ -106,6 +163,18 @@ html, body {
 .grid-table td.editing {
     background: #f5faff;
     padding: 0;
+}
+
+.grid-table td input.cell-input {
+    width: 100%;
+    height: 98%;
+    font-family: monospace;
+    font-size: 1rem;
+    border: none;
+    background: #fff;
+    outline: none;
+    padding: 0 5px;
+    box-sizing: border-box;
 }
 
 .status-bar {

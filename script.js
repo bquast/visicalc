@@ -1,8 +1,5 @@
-// SheetGrid v0.1 — Spreadsheet grid with formula bar
-
-// --- Configurable grid size
-const ROWS = 10;
-const COLS = 5;
+const ROWS = 20;
+const COLS = 10;
 const COL_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 // --- State
@@ -14,6 +11,18 @@ let editingCell = false;
 const gridContainer = document.getElementById('grid-container');
 const formulaBar = document.getElementById('formula-bar');
 const statusBar = document.getElementById('cell-status');
+
+// --- Menu bar open/close
+document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        document.querySelectorAll('.menu').forEach(m => m.classList.remove('open'));
+        this.parentNode.classList.add('open');
+        e.stopPropagation();
+    });
+});
+document.body.addEventListener('click', () => {
+    document.querySelectorAll('.menu').forEach(m => m.classList.remove('open'));
+});
 
 // --- Initialize blank sheet
 function initSheet() {
@@ -27,12 +36,10 @@ function initSheet() {
     }
 }
 
-// --- Formula evaluation (very basic)
+// --- Formula evaluation (basic)
 function evalFormula(input) {
     try {
         if (!input.startsWith('=')) return input;
-
-        // Handle =sum(…) and basic arithmetic
         let formula = input.slice(1).trim();
 
         // =sum(a,b,c)
@@ -49,7 +56,6 @@ function evalFormula(input) {
                 if (c >= 0 && c < COLS && r >= 0 && r < ROWS) {
                     let v = sheet[r][c];
                     if (typeof v === "string" && v.trim().startsWith("=")) {
-                        // Avoid recursion for now
                         return safeEval(v.slice(1));
                     } else {
                         return Number(v) || 0;
@@ -67,8 +73,7 @@ function evalFormula(input) {
 // Only safe math
 function safeEval(expr) {
     try {
-        if (/[^-()\d/*+.]/.test(expr)) return 0; // Block anything not math
-        // eslint-disable-next-line no-new-func
+        if (/[^-()\d/*+.]/.test(expr)) return 0;
         return Function('"use strict";return (' + expr + ')')();
     } catch {
         return 0;
@@ -89,7 +94,7 @@ function renderGrid() {
 
     for (let c = 0; c < COLS; c++) {
         let th = document.createElement('th');
-        th.textContent = COL_LABELS[c];
+        th.textContent = COL_LABELS[c] || String.fromCharCode(65 + c);
         headerRow.appendChild(th);
     }
     thead.appendChild(headerRow);
@@ -106,25 +111,24 @@ function renderGrid() {
             let td = document.createElement('td');
             let cell = sheet[r][c];
 
-            // Display evaluated value unless selected
+            // If currently editing this cell: input
             if (r === selectedRow && c === selectedCol && editingCell) {
                 let input = document.createElement('input');
                 input.type = "text";
                 input.value = cell;
                 input.className = "cell-input";
                 input.spellcheck = false;
-                input.style.width = "99%";
                 input.autofocus = true;
                 td.classList.add('editing');
                 td.appendChild(input);
-                // focus after DOM update
+
+                // Focus after render
                 setTimeout(() => input.focus(), 0);
 
                 input.onkeydown = (e) => {
                     if (e.key === "Enter" || e.key === "Tab") {
                         commitEdit(r, c, input.value);
                         e.preventDefault();
-                        // Move selection on Tab
                         if (e.key === "Tab") {
                             moveSelection(0, 1);
                         }
@@ -145,12 +149,16 @@ function renderGrid() {
                 if (typeof cell === "string" && cell.trim().startsWith("=")) {
                     let result = evalFormula(cell);
                     displayValue = result;
-                    td.title = cell; // Tooltip with formula
+                    td.title = cell;
                 }
                 td.textContent = displayValue;
                 if (r === selectedRow && c === selectedCol) td.classList.add('selected');
-                td.onclick = () => selectCell(r, c);
-                td.ondblclick = () => beginEdit(r, c);
+                td.onclick = () => {
+                    selectedRow = r;
+                    selectedCol = c;
+                    editingCell = true; // immediate edit mode!
+                    renderGrid();
+                };
             }
             tr.appendChild(td);
         }
@@ -161,44 +169,24 @@ function renderGrid() {
     gridContainer.innerHTML = '';
     gridContainer.appendChild(table);
 
-    // Update formula bar and status
+    // Sync formula bar and status
     let current = sheet[selectedRow][selectedCol];
     formulaBar.value = (typeof current === "string") ? current : "";
     statusBar.textContent = `${COL_LABELS[selectedCol]}${selectedRow + 1}`;
 }
 
-// --- Cell selection/editing logic
-function selectCell(r, c) {
-    if (selectedRow === r && selectedCol === c && !editingCell) {
-        beginEdit(r, c);
-        return;
-    }
-    selectedRow = r;
-    selectedCol = c;
-    editingCell = false;
-    renderGrid();
-}
-
-function beginEdit(r, c) {
-    selectedRow = r;
-    selectedCol = c;
-    editingCell = true;
-    renderGrid();
-    // focus will happen in input via renderGrid
-}
-
+// --- Editing logic
 function commitEdit(r, c, value) {
     sheet[r][c] = value;
     editingCell = false;
     renderGrid();
 }
 
-// --- Formula bar logic
-formulaBar.addEventListener('input', (e) => {
-    // live preview as you type? for now, just change value
+// --- Formula bar sync: edits update cell, and update grid
+formulaBar.addEventListener('input', () => {
     sheet[selectedRow][selectedCol] = formulaBar.value;
-    renderGrid();
     editingCell = false;
+    renderGrid();
 });
 formulaBar.addEventListener('keydown', (e) => {
     if (e.key === "Enter") {
@@ -206,16 +194,16 @@ formulaBar.addEventListener('keydown', (e) => {
     }
 });
 
-// --- Keyboard navigation
+// --- Keyboard navigation (when not editing a cell)
 document.addEventListener('keydown', (e) => {
-    if (editingCell) return; // Don't move selection while editing
+    if (editingCell) return;
     let handled = true;
     switch (e.key) {
         case "ArrowUp": moveSelection(-1, 0); break;
         case "ArrowDown": moveSelection(1, 0); break;
         case "ArrowLeft": moveSelection(0, -1); break;
         case "ArrowRight": moveSelection(0, 1); break;
-        case "Enter": beginEdit(selectedRow, selectedCol); break;
+        case "Enter": editingCell = true; renderGrid(); break;
         default: handled = false;
     }
     if (handled) e.preventDefault();
@@ -224,7 +212,10 @@ document.addEventListener('keydown', (e) => {
 function moveSelection(dr, dc) {
     let r = Math.min(Math.max(0, selectedRow + dr), ROWS - 1);
     let c = Math.min(Math.max(0, selectedCol + dc), COLS - 1);
-    selectCell(r, c);
+    selectedRow = r;
+    selectedCol = c;
+    editingCell = false;
+    renderGrid();
 }
 
 // --- Init
