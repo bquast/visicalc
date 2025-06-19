@@ -1,0 +1,122 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ececec;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 800px;
+    margin: 24px auto;
+    border: 1.5px solid #b5b5b5;
+    background: #f8f8f8;
+    border-radius: 8px;
+    box-shadow: 0 2px 14px #0002;
+    overflow: hidden;
+}
+
+.app-header {
+    background: #dde4ee;
+    border-bottom: 1px solid #b5b5b5;
+    padding: 10px 16px;
+    font-weight: bold;
+    font-size: 1.15rem;
+    color: #293241;
+}
+
+.app-title {
+    font-family: "Segoe UI", "Tahoma", Geneva, Verdana, sans-serif;
+    letter-spacing: 1px;
+}
+
+.formula-bar-container {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid #ccd2da;
+    background: #f2f4f8;
+}
+
+.formula-label {
+    margin-right: 10px;
+    color: #555;
+    font-family: monospace;
+}
+
+#formula-bar {
+    flex: 1;
+    font-family: monospace;
+    font-size: 1rem;
+    border: 1px solid #aab;
+    border-radius: 3px;
+    padding: 4px 8px;
+    outline: none;
+    background: #fff;
+    transition: border 0.18s;
+}
+
+#formula-bar:focus {
+    border: 1.5px solid #265fc5;
+}
+
+#grid-container {
+    flex: 1;
+    overflow: auto;
+    background: #fff;
+    padding: 8px 0 0 8px;
+    font-family: monospace;
+}
+
+.grid-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 600px;
+}
+
+.grid-table th, .grid-table td {
+    border: 1px solid #b5b5b5;
+    min-width: 70px;
+    max-width: 220px;
+    height: 28px;
+    padding: 0 8px;
+    font-size: 1rem;
+    background: #fafbfc;
+    text-align: left;
+    vertical-align: middle;
+    position: relative;
+}
+
+.grid-table th {
+    background: #f0f2f5;
+    color: #46526d;
+    font-weight: bold;
+    text-align: center;
+}
+
+.grid-table td.selected {
+    outline: 2px solid #356ae6;
+    z-index: 2;
+    background: #e4ecfd;
+}
+
+.grid-table td.editing {
+    background: #f5faff;
+    padding: 0;
+}
+
+.status-bar {
+    background: #dde4ee;
+    border-top: 1px solid #b5b5b5;
+    font-size: 0.96rem;
+    padding: 6px 16px;
+    color: #345;
+    min-height: 28px;
+    letter-spacing: 0.1px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
